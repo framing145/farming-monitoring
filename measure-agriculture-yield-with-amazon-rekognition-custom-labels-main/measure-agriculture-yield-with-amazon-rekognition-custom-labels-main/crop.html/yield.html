@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Yield Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f9fc;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        main {
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        input, button {
+            display: block;
+            width: 100%;
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Crop Yield Data Management</h1>
+    </header>
+    <main>
+        <div class="container">
+            <h2>Upload Crop Data</h2>
+            <form id="uploadForm">
+                <input type="file" id="fileInput" accept=".csv, .xlsx" required />
+                <button type="button" id="uploadBtn">Upload to AWS S3</button>
+            </form>
+            <hr />
+            <h2>View Stored Data</h2>
+            <button type="button" id="fetchDataBtn">Fetch Data from DynamoDB</button>
+            <table class="data-table" id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Crop</th>
+                        <th>Yield (kg/ha)</th>
+                        <th>Region</th>
+                        <th>Year</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fetchDataBtn = document.getElementById('fetchDataBtn');
+        const dataTable = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+
+        // Function to upload file to AWS S3
+        uploadBtn.addEventListener('click', async () => {
+            const fileInput = document.getElementById('fileInput').files[0];
+            if (!fileInput) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            // Replace with actual API endpoint to upload file to S3
+            const apiUrl = 'https://<your-api-endpoint>/upload';
+            const formData = new FormData();
+            formData.append('file', fileInput);
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    body: formData,
+                });
+                if (response.ok) {
+                    alert('File uploaded successfully!');
+                } else {
+                    alert('Failed to upload file.');
+                }
+            } catch (error) {
+                console.error('Error uploading file:', error);
+            }
+        });
+
+        // Function to fetch data from DynamoDB
+        fetchDataBtn.addEventListener('click', async () => {
+            // Replace with actual API endpoint to fetch data from DynamoDB
+            const apiUrl = 'https://<your-api-endpoint>/fetch-data';
+
+            try {
+                const response = await fetch(apiUrl);
+                if (response.ok) {
+                    const data = await response.json();
+                    dataTable.innerHTML = ''; // Clear existing rows
+                    data.forEach(item => {
+                        const row = dataTable.insertRow();
+                        row.insertCell(0).textContent = item.crop;
+                        row.insertCell(1).textContent = item.yield;
+                        row.insertCell(2).textContent = item.region;
+                        row.insertCell(3).textContent = item.year;
+                    });
+                } else {
+                    alert('Failed to fetch data.');
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        });
+    </script>
+</body>
+</html>
